@@ -27,7 +27,10 @@ public class Constants {
     public static final String METADATA_ADDRESS = "dubbo.metadata-report.address";
     public static final String DEFAULT_ROOT = "dubbo";
     public static final String PATH_SEPARATOR = "/";
+    public static final String DOT = ".";
+    public static final String COLON = ":";
     public static final String GROUP_KEY = "group";
+    public static final String DUBBO_GROUP = "dubbo";
     public static final String CONFIG_KEY = "config";
     public static final String DUBBO_PROPERTY = "dubbo.properties";
     public static final String PROVIDER_SIDE = "provider";

@@ -18,6 +18,7 @@
 package org.apache.dubbo.admin.controller;
 
 import org.apache.dubbo.admin.AbstractSpringIntegrationTest;
+import org.apache.dubbo.admin.common.util.Constants;
 import org.apache.dubbo.admin.common.util.YamlParser;
 import org.apache.dubbo.admin.model.dto.ConditionRouteDTO;
 import org.apache.dubbo.admin.model.store.RoutingRule;
@@ -118,7 +119,7 @@ public class ConditionRoutesControllerTest extends AbstractSpringIntegrationTest
         + "priority: 0\n"
         + "runtime: false\n"
         + "scope: service";
-    String path = "/dubbo/config/" + service + "/condition-router";
+    String path = "/dubbo/config/dubbo/" + service  + ":" + ":" + ".condition-router";
     zkClient.create().creatingParentContainersIfNeeded().forPath(path);
     zkClient.setData().forPath(path, content.getBytes());
 
@@ -152,7 +153,7 @@ public class ConditionRoutesControllerTest extends AbstractSpringIntegrationTest
         + "priority: 0\n"
         + "runtime: false\n"
         + "scope: service";
-    String path = "/dubbo/config/" + service + "/condition-router";
+    String path = "/dubbo/config/dubbo/" + service  + ":" + ":" + ".condition-router";
     zkClient.create().creatingParentContainersIfNeeded().forPath(path);
     zkClient.setData().forPath(path, content.getBytes());
 
@@ -183,15 +184,15 @@ public class ConditionRoutesControllerTest extends AbstractSpringIntegrationTest
         + "priority: 0\n"
         + "runtime: false\n"
         + "scope: service";
-    String path = "/dubbo/config/" + service + "/condition-router";
+    String path = "/dubbo/config/dubbo/" + service + ":" + ":" + ".condition-router";
     zkClient.create().creatingParentContainersIfNeeded().forPath(path);
     zkClient.setData().forPath(path, content.getBytes());
 
     assertNotNull("zk path should not be null before deleting", zkClient.checkExists().forPath(path));
 
     ResponseEntity<String> responseEntity = restTemplate.exchange(
-        url("/api/{env}/rules/route/condition/{service}"), HttpMethod.DELETE,
-        null, String.class, env, service
+        url("/api/{env}/rules/route/condition/{type}/{service}"), HttpMethod.DELETE,
+        null, String.class, env, Constants.SERVICE, service
     );
     assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
 
@@ -201,7 +202,7 @@ public class ConditionRoutesControllerTest extends AbstractSpringIntegrationTest
   @Test
   public void shouldThrowWhenDetailRouteWithUnknownId() {
     ResponseEntity<String> responseEntity = restTemplate.getForEntity(
-        url("/api/{env}/rules/route/condition/{id}"), String.class, env, "non-existed-service"
+        url("/api/{env}/rules/route/condition/{type}/{id}"), String.class, env, Constants.SERVICE, "non-existed-service"
     );
     assertThat(responseEntity.getStatusCode(), is(HttpStatus.NOT_FOUND));
   }
@@ -218,12 +219,12 @@ public class ConditionRoutesControllerTest extends AbstractSpringIntegrationTest
         + "priority: 0\n"
         + "runtime: false\n"
         + "scope: service";
-    String path = "/dubbo/config/" + service + "/condition-router";
+    String path = "/dubbo/config/dubbo/" + service  + ":" + ":" + ".condition-router";
     zkClient.create().creatingParentContainersIfNeeded().forPath(path);
     zkClient.setData().forPath(path, content.getBytes());
 
     ResponseEntity<ConditionRouteDTO> responseEntity = restTemplate.getForEntity(
-        url("/api/{env}/rules/route/condition/{id}"), ConditionRouteDTO.class, env, service
+        url("/api/{env}/rules/route/condition/{type}/{id}"), ConditionRouteDTO.class, env, Constants.SERVICE, service
     );
     assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
 
@@ -245,7 +246,7 @@ public class ConditionRoutesControllerTest extends AbstractSpringIntegrationTest
         + "priority: 0\n"
         + "runtime: false\n"
         + "scope: service";
-    String path = "/dubbo/config/" + service + "/condition-router";
+    String path = "/dubbo/config/dubbo/" + service + ":" + ":" + ".condition-router";
     zkClient.create().creatingParentContainersIfNeeded().forPath(path);
     zkClient.setData().forPath(path, content.getBytes());
 
@@ -254,7 +255,7 @@ public class ConditionRoutesControllerTest extends AbstractSpringIntegrationTest
     RoutingRule rule = YamlParser.loadObject(updatedConfig, RoutingRule.class);
     assertFalse(rule.isEnabled());
 
-    restTemplate.put(url("/api/{env}/rules/route/condition/enable/{id}"), null, env, service);
+    restTemplate.put(url("/api/{env}/rules/route/condition/enable/{type}/{id}"), null, env, Constants.SERVICE, service);
 
     bytes = zkClient.getData().forPath(path);
     updatedConfig = new String(bytes);
@@ -274,7 +275,7 @@ public class ConditionRoutesControllerTest extends AbstractSpringIntegrationTest
         + "priority: 0\n"
         + "runtime: false\n"
         + "scope: service";
-    String path = "/dubbo/config/" + service + "/condition-router";
+    String path = "/dubbo/config/dubbo/" + service + ":" + ":" + ".condition-router";
     zkClient.create().creatingParentContainersIfNeeded().forPath(path);
     zkClient.setData().forPath(path, content.getBytes());
 
@@ -283,7 +284,7 @@ public class ConditionRoutesControllerTest extends AbstractSpringIntegrationTest
     RoutingRule rule = YamlParser.loadObject(updatedConfig, RoutingRule.class);
     assertTrue(rule.isEnabled());
 
-    restTemplate.put(url("/api/{env}/rules/route/condition/disable/{id}"), null, env, service);
+    restTemplate.put(url("/api/{env}/rules/route/condition/disable/{type}/{id}"), null, env, Constants.SERVICE, service);
 
     bytes = zkClient.getData().forPath(path);
     updatedConfig = new String(bytes);

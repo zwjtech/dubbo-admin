@@ -21,6 +21,7 @@ import org.apache.dubbo.admin.common.exception.ParamValidationException;
 import org.apache.dubbo.admin.common.exception.ResourceNotFoundException;
 import org.apache.dubbo.admin.common.exception.VersionValidationException;
 import org.apache.dubbo.admin.common.util.Constants;
+import org.apache.dubbo.admin.common.util.ConvertUtil;
 import org.apache.dubbo.admin.model.dto.AccessDTO;
 import org.apache.dubbo.admin.model.dto.ConditionRouteDTO;
 import org.apache.dubbo.admin.service.ProviderService;
@@ -65,9 +66,9 @@ public class AccessesController {
         List<AccessDTO> accessDTOS = new ArrayList<>();
         AccessDTO accessDTO;
         if (StringUtils.isNotBlank(application)) {
-            accessDTO = routeService.findAccess(application);
+            accessDTO = routeService.findAccess(application, false);
         } else {
-            accessDTO = routeService.findAccess(service);
+            accessDTO = routeService.findAccess(service, true);
         }
         if (accessDTO != null) {
             accessDTO.setEnabled(true);
@@ -76,17 +77,17 @@ public class AccessesController {
         return accessDTOS;
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public AccessDTO detailAccess(@PathVariable String id, @PathVariable String env) {
+    @RequestMapping(value = "/{type}/{id}", method = RequestMethod.GET)
+    public AccessDTO detailAccess(@PathVariable String id, @PathVariable String type, @PathVariable String env) {
         id = id.replace(Constants.ANY_VALUE, Constants.PATH_SEPARATOR);
-        AccessDTO accessDTO = routeService.findAccess(id);
+        AccessDTO accessDTO = routeService.findAccess(id, type.equals(Constants.SERVICE));
         return accessDTO;
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public void deleteAccess(@PathVariable String id, @PathVariable String env) {
+    @RequestMapping(value = "/{type}/{id}", method = RequestMethod.DELETE)
+    public void deleteAccess(@PathVariable String id, @PathVariable String type, @PathVariable String env) {
         id = id.replace(Constants.ANY_VALUE, Constants.PATH_SEPARATOR);
-        routeService.deleteAccess(id);
+        routeService.deleteAccess(id, type.equals(Constants.SERVICE));
     }
 
     @RequestMapping(method = RequestMethod.POST)
@@ -107,9 +108,9 @@ public class AccessesController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public void updateAccess(@PathVariable String id, @RequestBody AccessDTO accessDTO, @PathVariable String env) {
-
+        String type = ConvertUtil.getScopeFromDTO(accessDTO);
         id = id.replace(Constants.ANY_VALUE, Constants.PATH_SEPARATOR);
-        ConditionRouteDTO route = routeService.findConditionRoute(id);
+        ConditionRouteDTO route = routeService.findConditionRoute(id, type.equals(Constants.SERVICE));
         if (Objects.isNull(route)) {
             throw new ResourceNotFoundException("Unknown ID!");
         }

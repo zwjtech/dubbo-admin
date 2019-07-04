@@ -30,23 +30,23 @@ public interface RouteService {
 
     void updateConditionRoute(ConditionRouteDTO newConditionRoute);
 
-    void deleteConditionRoute(String id);
+    void deleteConditionRoute(String id, boolean isService);
 
-    void deleteAccess(String id);
+    void deleteAccess(String id, boolean isService);
 
     void createAccess(AccessDTO accessDTO);
 
-    AccessDTO findAccess(String id);
+    AccessDTO findAccess(String id, boolean isService);
 
     void updateAccess(AccessDTO accessDTO);
 
-    void enableConditionRoute(String id);
+    void enableConditionRoute(String id, boolean isService);
 
 
-    void disableConditionRoute(String id);
+    void disableConditionRoute(String id, boolean isService);
 
 
-    ConditionRouteDTO findConditionRoute(String id);
+    ConditionRouteDTO findConditionRoute(String id, boolean isService);
 
     void createTagRoute(TagRouteDTO tagRoute);
 

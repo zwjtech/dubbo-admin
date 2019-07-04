@@ -420,6 +420,7 @@
       },
       itemOperation: function (icon, item) {
         let itemId = ''
+        let type = this.items[this.selected].value
         if (this.selected === 0) {
           itemId = item.service
         } else {
@@ -430,7 +431,7 @@
         }
         switch (icon) {
           case 'visibility':
-            this.$axios.get('/rules/balancing/' + itemId)
+            this.$axios.get('/rules/balancing/' + type + '/' + itemId)
               .then(response => {
                 let balancing = response.data
                 this.handleBalance(balancing, true)
@@ -438,7 +439,7 @@
               })
             break
           case 'edit':
-            this.$axios.get('/rules/balancing/' + itemId)
+            this.$axios.get('/rules/balancing/' + type + '/' + itemId)
               .then(response => {
                 let balancing = response.data
                 this.handleBalance(balancing, false)
@@ -467,7 +468,8 @@
         this.height = window.innerHeight * 0.5
       },
       deleteItem: function (id) {
-        this.$axios.delete('/rules/balancing/' + id)
+        let type = this.items[this.selected].value
+        this.$axios.delete('/rules/balancing/' + type + '/' + id)
           .then(response => {
             if (response.status === 200) {
               this.warn = false

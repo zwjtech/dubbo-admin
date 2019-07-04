@@ -19,6 +19,7 @@ package org.apache.dubbo.admin.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.dubbo.admin.AbstractSpringIntegrationTest;
+import org.apache.dubbo.admin.common.util.Constants;
 import org.apache.dubbo.admin.model.dto.BalancingDTO;
 import org.apache.dubbo.admin.service.OverrideService;
 import org.apache.dubbo.admin.service.ProviderService;
@@ -40,7 +41,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -89,6 +89,7 @@ public class LoadBalanceControllerTest extends AbstractSpringIntegrationTest {
     public void updateLoadbalance() throws IOException {
         String id = "1";
         BalancingDTO balancingDTO = new BalancingDTO();
+        balancingDTO.setApplication(id);
         URI uri;
         ResponseEntity<String> response;
         // unknown id
@@ -96,7 +97,7 @@ public class LoadBalanceControllerTest extends AbstractSpringIntegrationTest {
         assertFalse("should return a fail response, when id is null", (Boolean) objectMapper.readValue(response.getBody(), Map.class).get("success"));
         // valid id
         BalancingDTO balancing = mock(BalancingDTO.class);
-        when(overrideService.findBalance(id)).thenReturn(balancing);
+        when(overrideService.findBalance(id, false)).thenReturn(balancing);
         assertTrue(restTemplate.exchange(url("/api/{env}/rules/balancing/{id}"), HttpMethod.PUT, new HttpEntity<>(balancingDTO, null), Boolean.class, env, id).getBody());
         verify(overrideService).saveBalance(any(BalancingDTO.class));
     }
@@ -111,14 +112,15 @@ public class LoadBalanceControllerTest extends AbstractSpringIntegrationTest {
         // service is valid
         response = restTemplate.getForEntity(url("/api/{env}/rules/balancing?service={service}&application={application}"), String.class, env, service, null);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(overrideService).findBalance(service);
+        verify(overrideService).findBalance(service, true);
         // application is valid
         response = restTemplate.getForEntity(url("/api/{env}/rules/balancing?service={service}&application={application}"), String.class, env, null, application);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(overrideService).findBalance(application);
+        verify(overrideService).findBalance(application, false);
         // findBalance return a notnull
         BalancingDTO balancingDTO = new BalancingDTO();
-        when(overrideService.findBalance(anyString())).thenReturn(balancingDTO);
+        balancingDTO.setApplication("1");
+        when(overrideService.findBalance(application, false)).thenReturn(balancingDTO);
         response = restTemplate.getForEntity(url("/api/{env}/rules/balancing?service={service}&application={application}"), String.class, env, null, application);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(1, objectMapper.readValue(response.getBody(), List.class).size());
@@ -129,12 +131,12 @@ public class LoadBalanceControllerTest extends AbstractSpringIntegrationTest {
         String id = "1";
         ResponseEntity<String> response;
         // when balancing is not exist
-        response = restTemplate.getForEntity(url("/api/{env}/rules/balancing/{id}"), String.class, env, id);
+        response = restTemplate.getForEntity(url("/api/{env}/rules/balancing/{type}/{id}"), String.class, env, Constants.APPLICATION, id);
         assertFalse("should return a fail response, when id is null", (Boolean) objectMapper.readValue(response.getBody(), Map.class).get("success"));
         // when balancing is not null
         BalancingDTO balancingDTO = new BalancingDTO();
-        when(overrideService.findBalance(id)).thenReturn(balancingDTO);
-        response = restTemplate.getForEntity(url("/api/{env}/rules/balancing/{id}"), String.class, env, id);
+        when(overrideService.findBalance(id, false)).thenReturn(balancingDTO);
+        response = restTemplate.getForEntity(url("/api/{env}/rules/balancing/{type}/{id}"), String.class, env, Constants.APPLICATION, id);
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -144,7 +146,7 @@ public class LoadBalanceControllerTest extends AbstractSpringIntegrationTest {
         URI uri;
         ResponseEntity<String> response;
 
-        response = restTemplate.exchange(url("/api/{env}/rules/balancing/{id}"), HttpMethod.DELETE, new HttpEntity<>(null), String.class, env, id);
+        response = restTemplate.exchange(url("/api/{env}/rules/balancing/{type}/{id}"), HttpMethod.DELETE, new HttpEntity<>(null), String.class, env, Constants.APPLICATION, id);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(Boolean.valueOf(response.getBody()));
     }

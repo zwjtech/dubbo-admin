@@ -392,6 +392,7 @@
       },
       itemOperation: function (icon, item) {
         let itemId = ''
+        let type = this.items[this.selected].value
         if (this.selected === 0) {
           itemId = item.service
         } else {
@@ -403,7 +404,7 @@
         }
         switch (icon) {
           case 'visibility':
-            this.$axios.get('/rules/route/condition/' + itemId)
+            this.$axios.get('/rules/route/condition/' + type + '/' + itemId)
               .then(response => {
                 let conditionRoute = response.data
                 this.handleBalance(conditionRoute, true)
@@ -411,7 +412,7 @@
               })
             break
           case 'edit':
-            this.$axios.get('/rules/route/condition/' + itemId)
+            this.$axios.get('/rules/route/condition/' + type + '/' + itemId)
               .then(response => {
                 let conditionRoute = response.data
                 this.handleBalance(conditionRoute, false)
@@ -452,9 +453,10 @@
       },
       deleteItem: function (warnStatus) {
         let id = warnStatus.id
+        let type = this.items[this.selected].value
         let operation = warnStatus.operation
         if (operation === 'delete') {
-          this.$axios.delete('/rules/route/condition/' + id)
+          this.$axios.delete('/rules/route/condition/' + type + '/' + id)
             .then(response => {
               if (response.status === 200) {
                 this.warn = false
@@ -463,7 +465,7 @@
               }
             })
         } else if (operation === 'disable') {
-          this.$axios.put('/rules/route/condition/disable/' + id)
+          this.$axios.put('/rules/route/condition/disable/' + type + '/' + id)
             .then(response => {
               if (response.status === 200) {
                 this.warn = false
@@ -472,7 +474,7 @@
               }
             })
         } else if (operation === 'enable') {
-          this.$axios.put('/rules/route/condition/enable/' + id)
+          this.$axios.put('/rules/route/condition/enable/' + type + '/' + id)
             .then(response => {
               if (response.status === 200) {
                 this.warn = false

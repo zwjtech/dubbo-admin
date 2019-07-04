@@ -16,6 +16,8 @@
  */
 package org.apache.dubbo.admin.common.util;
 
+import org.apache.dubbo.common.utils.StringUtils;
+
 /**
  * Tool
  *
@@ -54,5 +56,20 @@ public class Tool {
             }
         }
         return null;
+    }
+
+    public static String encodeKey(String key) {
+        String interfaze = getInterface(key);
+        String group = getGroup(key);
+        String version = getVersion(key);
+        String encodeKey = interfaze + Constants.COLON;
+        if (StringUtils.isNotEmpty(version)) {
+            encodeKey = encodeKey + version;
+        }
+        encodeKey = encodeKey + Constants.COLON;
+        if (StringUtils.isNotEmpty(group)) {
+            encodeKey = encodeKey + group;
+        }
+        return encodeKey;
     }
 }

@@ -374,6 +374,7 @@
       },
       itemOperation: function (icon, item) {
         let itemId = ''
+        let type = this.items[this.selected].value
         if (this.selected === 0) {
           itemId = item.service
         } else {
@@ -384,7 +385,7 @@
         }
         switch (icon) {
           case 'visibility':
-            this.$axios.get('/rules/override/' + itemId)
+            this.$axios.get('/rules/override/' + type + '/' + itemId)
               .then(response => {
                 let config = response.data
                 this.handleConfig(config, true)
@@ -392,7 +393,7 @@
               })
             break
           case 'edit':
-            this.$axios.get('/rules/override/' + itemId)
+            this.$axios.get('/rules/override/' + type + '/' + itemId)
               .then(response => {
                 let config = response.data
                 this.handleConfig(config, false)
@@ -443,9 +444,10 @@
       },
       deleteItem: function (warnStatus) {
         let id = warnStatus.id
+        let type = this.items[this.selected].value
         let operation = warnStatus.operation
         if (operation === 'delete') {
-          this.$axios.delete('/rules/override/' + id)
+          this.$axios.delete('/rules/override/' + type + '/' + id)
             .then(response => {
               if (response.status === 200) {
                 this.warn = false
@@ -454,7 +456,7 @@
               }
             })
         } else if (operation === 'disable') {
-          this.$axios.put('/rules/override/disable/' + id)
+          this.$axios.put('/rules/override/disable/' + type + '/' + id)
             .then(response => {
               if (response.status === 200) {
                 this.warn = false
@@ -463,7 +465,7 @@
               }
             })
         } else if (operation === 'enable') {
-          this.$axios.put('/rules/override/enable/' + id)
+          this.$axios.put('/rules/override/enable/' + type + '/' + id)
             .then(response => {
               if (response.status === 200) {
                 this.warn = false

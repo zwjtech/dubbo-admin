@@ -502,7 +502,8 @@ export default {
       })
     },
     deleteItem (id) {
-      this.$axios.delete('/rules/access/' + id)
+      let type = this.items[this.selected].value
+      this.$axios.delete('/rules/access/' + type + '/' + id)
       .then(response => {
         this.showSnackbar('success', 'Delete success')
         this.search(this.filter)

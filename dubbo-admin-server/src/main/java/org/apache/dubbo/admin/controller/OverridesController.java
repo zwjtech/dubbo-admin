@@ -22,6 +22,7 @@ import org.apache.dubbo.admin.common.exception.ParamValidationException;
 import org.apache.dubbo.admin.common.exception.ResourceNotFoundException;
 import org.apache.dubbo.admin.common.exception.VersionValidationException;
 import org.apache.dubbo.admin.common.util.Constants;
+import org.apache.dubbo.admin.common.util.ConvertUtil;
 import org.apache.dubbo.admin.model.dto.DynamicConfigDTO;
 import org.apache.dubbo.admin.service.OverrideService;
 import org.apache.dubbo.admin.service.ProviderService;
@@ -69,7 +70,8 @@ public class OverridesController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public boolean updateOverride(@PathVariable String id, @RequestBody DynamicConfigDTO overrideDTO, @PathVariable String env) {
         id = id.replace(Constants.ANY_VALUE, Constants.PATH_SEPARATOR);
-        DynamicConfigDTO old = overrideService.findOverride(id);
+        String type = ConvertUtil.getScopeFromDTO(overrideDTO);
+        DynamicConfigDTO old = overrideService.findOverride(id, type.equals(Constants.SERVICE));
         if (old == null) {
             throw new ResourceNotFoundException("Unknown ID!");
         }
@@ -84,9 +86,9 @@ public class OverridesController {
         DynamicConfigDTO override = null;
         List<DynamicConfigDTO> result = new ArrayList<>();
         if (StringUtils.isNotBlank(service)) {
-            override = overrideService.findOverride(service);
+            override = overrideService.findOverride(service, true);
         } else if(StringUtils.isNotBlank(application)){
-            override = overrideService.findOverride(application);
+            override = overrideService.findOverride(application, false);
         } else {
             throw new ParamValidationException("Either Service or application is required.");
         }
@@ -96,10 +98,10 @@ public class OverridesController {
         return result;
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    public DynamicConfigDTO detailOverride(@PathVariable String id, @PathVariable String env) {
+    @RequestMapping(value = "/{type}/{id}", method = RequestMethod.GET)
+    public DynamicConfigDTO detailOverride(@PathVariable String id, @PathVariable String type, @PathVariable String env) {
         id = id.replace(Constants.ANY_VALUE, Constants.PATH_SEPARATOR);
-        DynamicConfigDTO override = overrideService.findOverride(id);
+        DynamicConfigDTO override = overrideService.findOverride(id, type.equals(Constants.SERVICE));
         if (override == null) {
             throw new ResourceNotFoundException("Unknown ID!");
         }
@@ -107,26 +109,26 @@ public class OverridesController {
         return override;
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public boolean deleteOverride(@PathVariable String id, @PathVariable String env) {
+    @RequestMapping(value = "/{type}/{id}", method = RequestMethod.DELETE)
+    public boolean deleteOverride(@PathVariable String id, @PathVariable String type, @PathVariable String env) {
         id = id.replace(Constants.ANY_VALUE, Constants.PATH_SEPARATOR);
-        overrideService.deleteOverride(id);
+        overrideService.deleteOverride(id, type.equals(Constants.SERVICE));
         return true;
     }
 
-    @RequestMapping(value = "/enable/{id}", method = RequestMethod.PUT)
-    public boolean enableRoute(@PathVariable String id, @PathVariable String env) {
+    @RequestMapping(value = "/enable/{type}/{id}", method = RequestMethod.PUT)
+    public boolean enableOverride(@PathVariable String id, @PathVariable String type, @PathVariable String env) {
 
         id = id.replace(Constants.ANY_VALUE, Constants.PATH_SEPARATOR);
-        overrideService.enableOverride(id);
+        overrideService.enableOverride(id, type.equals(Constants.SERVICE));
         return true;
     }
 
-    @RequestMapping(value = "/disable/{id}", method = RequestMethod.PUT)
-    public boolean disableRoute(@PathVariable String id, @PathVariable String env) {
+    @RequestMapping(value = "/disable/{type}/{id}", method = RequestMethod.PUT)
+    public boolean disableOverride(@PathVariable String id, @PathVariable String type, @PathVariable String env) {
         id = id.replace(Constants.ANY_VALUE, Constants.PATH_SEPARATOR);
 
-        overrideService.disableOverride(id);
+        overrideService.disableOverride(id, type.equals(Constants.SERVICE));
         return true;
     }
 }

@@ -20,6 +20,7 @@ package org.apache.dubbo.admin.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.dubbo.admin.AbstractSpringIntegrationTest;
+import org.apache.dubbo.admin.common.util.Constants;
 import org.apache.dubbo.admin.model.dto.AccessDTO;
 import org.apache.dubbo.admin.model.dto.ConditionRouteDTO;
 import org.apache.dubbo.admin.service.ProviderService;
@@ -72,14 +73,14 @@ public class AccessesControllerTest extends AbstractSpringIntegrationTest {
 
         // when application is present
         String application = "applicationName";
-        when(routeService.findAccess(application)).thenReturn(accessDTO);
+        when(routeService.findAccess(application, false)).thenReturn(accessDTO);
         response = restTemplate.getForEntity(url("/api/{env}/rules/access?application={application}"), String.class, env, application);
         exceptResponseBody = objectMapper.writeValueAsString(Collections.singletonList(accessDTO));
         assertEquals(exceptResponseBody, response.getBody());
 
         // when service is present
         String service = "serviceName";
-        when(routeService.findAccess(service)).thenReturn(accessDTO);
+        when(routeService.findAccess(service, true)).thenReturn(accessDTO);
         response = restTemplate.getForEntity(url("/api/{env}/rules/access?service={service}"), String.class, env, service);
         exceptResponseBody = objectMapper.writeValueAsString(Collections.singletonList(accessDTO));
         assertEquals(exceptResponseBody, response.getBody());
@@ -89,8 +90,8 @@ public class AccessesControllerTest extends AbstractSpringIntegrationTest {
     public void detailAccess() throws JsonProcessingException {
         String id = "1";
         AccessDTO accessDTO = new AccessDTO();
-        when(routeService.findAccess(id)).thenReturn(accessDTO);
-        ResponseEntity<String> response = restTemplate.getForEntity(url("/api/{env}/rules/access/{id}"), String.class, env, id);
+        when(routeService.findAccess(id, false)).thenReturn(accessDTO);
+        ResponseEntity<String> response = restTemplate.getForEntity(url("/api/{env}/rules/access/{type}/{id}"), String.class, env, Constants.APPLICATION, id);
         String exceptResponseBody = objectMapper.writeValueAsString(accessDTO);
         assertEquals(exceptResponseBody, response.getBody());
     }
@@ -98,8 +99,8 @@ public class AccessesControllerTest extends AbstractSpringIntegrationTest {
     @Test
     public void deleteAccess() {
         String id = "1";
-        restTemplate.delete(url("/api/{env}/rules/access/{id}"), env, id);
-        verify(routeService).deleteAccess(id);
+        restTemplate.delete(url("/api/{env}/rules/access/{type}/{id}"), env, Constants.APPLICATION, id);
+        verify(routeService).deleteAccess(id,false);
     }
 
     @Test
@@ -126,12 +127,13 @@ public class AccessesControllerTest extends AbstractSpringIntegrationTest {
     public void updateAccess() throws IOException {
         AccessDTO accessDTO = new AccessDTO();
         String id = "1";
+        accessDTO.setApplication(id);
         // when id is 'Unknown ID'
         restTemplate.put(url("/api/{env}/rules/access/{id}"), accessDTO, env, id);
-        verify(routeService).findConditionRoute(id);
+        verify(routeService).findConditionRoute(id, false);
         //
         ConditionRouteDTO conditionRouteDTO = mock(ConditionRouteDTO.class);
-        when(routeService.findConditionRoute(id)).thenReturn(conditionRouteDTO);
+        when(routeService.findConditionRoute(id, false)).thenReturn(conditionRouteDTO);
         restTemplate.put(url("/api/{env}/rules/access/{id}"), accessDTO, env, id);
         verify(routeService).updateAccess(any(AccessDTO.class));
     }

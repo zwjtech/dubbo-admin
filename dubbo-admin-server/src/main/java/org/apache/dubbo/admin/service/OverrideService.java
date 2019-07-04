@@ -26,28 +26,28 @@ public interface OverrideService {
 
     void updateOverride(DynamicConfigDTO override);
 
-    void deleteOverride(String id);
+    void deleteOverride(String id, boolean isService);
 
-    void enableOverride(String id);
+    void enableOverride(String id, boolean isService);
 
-    void disableOverride(String id);
+    void disableOverride(String id, boolean isService);
 
-    DynamicConfigDTO findOverride(String id);
+    DynamicConfigDTO findOverride(String id, boolean isService);
 
     void saveWeight(WeightDTO weightDTO);
 
     void updateWeight(WeightDTO weightDTO);
 
-    void deleteWeight(String id);
+    void deleteWeight(String id, boolean isService);
 
-    WeightDTO findWeight(String id);
+    WeightDTO findWeight(String id, boolean isService);
 
     void saveBalance(BalancingDTO balancingDTO);
 
     void updateBalance(BalancingDTO balancingDTO);
 
-    void deleteBalance(String id);
+    void deleteBalance(String id, boolean isService);
 
-    BalancingDTO findBalance(String id);
+    BalancingDTO findBalance(String id, boolean isService);
 
 }
